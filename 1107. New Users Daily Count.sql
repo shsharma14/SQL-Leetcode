@@ -31,7 +31,27 @@ SELECT * FROM Traffic
 ORDER BY activity_date;
 
 
-select user_id,min(activity_date) as login_date
-from traffic
-where activity='login'
-group by user_id
+
+WITH src AS (
+	SELECT *,
+	ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY activity_date) AS rn
+	FROM Traffic
+	WHERE activity = 'login'
+)
+, final_data AS (
+	SELECT activity_date, COUNT(DISTINCT user_id) AS cnt
+	FROM src
+	WHERE rn = 1
+	GROUP BY activity_date
+)
+SELECT activity_date AS login_date
+, cnt AS user_count
+FROM final_data
+WHERE DATEDIFF(DAY,activity_date, '2019-06-30') < 91
+
+
+
+
+
+
+

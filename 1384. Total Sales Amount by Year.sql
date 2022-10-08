@@ -16,12 +16,19 @@ insert into lc_Sales (product_id, period_start, period_end, average_daily_lc_Sal
 insert into lc_Sales (product_id, period_start, period_end, average_daily_lc_Sales) values ('3', '2019-12-01', '2020-01-31', '1')
 
 SELECT * FROM Product
-SELECT * FROM lc_Sales
+SELECT * FROM lc_Sales;
 
-SELECT p.product_name, s.*,
-CASE WHEN DATEDIFF(YEAR, period_start, period_end) = 0 THEN DATEDIFF(DAY, period_start, period_end)
-	 END AS py
-FROM Product p 
-LEFT JOIN lc_Sales s ON p.product_id = s.product_id
-go
+
+
+WITH src AS (
+	SELECT *
+	, YEAR(period_start) AS start_year 
+	, YEAR(period_end) AS end_year 
+	, DATEDIFF(DAY, period_start, period_end) AS date_diff
+	FROM lc_Sales
+) 
+SELECT * FROM src
+
+
+
 

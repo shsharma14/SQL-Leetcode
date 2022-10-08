@@ -14,27 +14,16 @@ insert into Seat (id, student) values ('5', 'Jeames')
 
 SELECT * FROM Seat
 
-----
 
-SELECT
-CASE WHEN id = LAST_VALUE(id) OVER (ORDER BY id ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) THEN id
-	 WHEN id%2 = 0 THEN id - 1 
-	 WHEN id%2 = 1 THEN id + 1	
-	 END AS id,
-student
-FROM Seat
-ORDER BY id
+SELECT id, student
+, LEAD(student,1,student) OVER (ORDER BY id) AS next_student
+, LEAD(student,1,'No rows after this') OVER (ORDER BY id) AS next_student_default
+FROM Seat;
 
--------
-SELECT
-CASE WHEN id = (SELECT MAX(id) FROM Seat) THEN id
-	 WHEN id%2 = 0 THEN id - 1 
-	 WHEN id%2 = 1 THEN id + 1	
-	 END AS id,
-student
-FROM Seat
+---- Solution
 
-SELECT id, CASE WHEN id % 2 <> 0 THEN LEAD(student,1,student)OVER(ORDER BY id)
-                WHEN id % 2 = 0 THEN LAG(student)OVER(ORDER BY id)
-            END AS student
+SELECT id
+, CASE WHEN id % 2 <> 0 THEN LEAD(student,1,student) OVER (ORDER BY id) -- odd ID
+       WHEN id % 2 = 0 THEN LAG(student) OVER (ORDER BY id) -- even ID
+  END AS student
 FROM Seat
